@@ -26,9 +26,7 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     }
 
     async findOneAndUpdate(queryFilter: QueryFilter<TDocument>, updateQuery: UpdateQuery<TDocument>): Promise<TDocument>{
-        const document = await this.model.findOneAndUpdate(queryFilter, updateQuery, {
-            new: true,
-        }).lean<TDocument>(true);
+        const document = await this.model.findOneAndUpdate(queryFilter, updateQuery, {returnDocument: 'after'}).lean<TDocument>(true);
 
         if (!document) {
             this.logger.warn(`Document not found with queryFilter: ${JSON.stringify(queryFilter)}`);
