@@ -1,11 +1,26 @@
 services:
   mongo:
-    image: mongo:7
+    image: mongo
     container_name: kipr-mongo
     ports:
       - '27017:27017'
     volumes:
-      - mongo-data:/data/db
+      - mongo-data:/data/dbz
+  reservations:
+    build:
+      context: .
+      dockerfile: ./apps/reservations/Dockerfile
+      target: development
+    command: pnpm run start:dev reservations
+    container_name: kipr-reservations
+    ports:
+      - '3000:3000'
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/kipr
+    depends_on:
+      - mongo
+    volumes:
+      - .:/usr/src/app
 
 volumes:
   mongo-data:
