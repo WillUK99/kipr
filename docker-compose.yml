@@ -6,6 +6,21 @@ services:
       - '27017:27017'
     volumes:
       - mongo-data:/data/dbz
+  auth:
+    build:
+      context: .
+      dockerfile: ./apps/auth/Dockerfile
+      target: development
+    command: pnpm run start:dev auth
+    container_name: kipr-auth
+    ports:
+      - '3001:3001'
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/kipr
+    depends_on:
+      - mongo
+    volumes:
+      - .:/usr/src/app
   reservations:
     build:
       context: .
