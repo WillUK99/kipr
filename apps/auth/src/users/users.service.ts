@@ -1,24 +1,30 @@
-import { Injectable, InternalServerErrorException, Logger, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersRepository } from './users.repository';
 import * as bcrypt from 'bcrypt';
+import { GetUserDto } from './dto/get-user.dto';
 
 @Injectable()
 export class UsersService {
     protected readonly logger = new Logger(UsersService.name);
-    constructor(private readonly usersRepository: UsersRepository) {}
+    constructor(private readonly usersRepository: UsersRepository) { }
 
     async create(createUserDto: CreateUserDto) {
-        try {
+        await this.validateCreateUserDto(createUserDto);
         const user = await this.usersRepository.create({
             ...createUserDto,
-                password: await bcrypt.hash(createUserDto.password, 10),
-            });
-            return user;
+            password: await bcrypt.hash(createUserDto.password, 10),
+        });
+        return user;
+    }
+
+    async validateCreateUserDto(createUserDto: CreateUserDto) {
+        try {
+            await this.usersRepository.findOne({ email: createUserDto.email });
         } catch (error) {
-            this.logger.error(error);
-            throw new InternalServerErrorException('Failed to create user');
+            return;
         }
+        throw new UnprocessableEntityException('Email already in use');
     }
 
     async validateUser(email: string, password: string) {
@@ -30,5 +36,9 @@ export class UsersService {
             throw new UnauthorizedException('Invalid credentials');
         }
         return user
+    }
+
+    async getUserById(getUserDto: GetUserDto) {
+        return await this.usersRepository.findOne(getUserDto);
     }
 }
