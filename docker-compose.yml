@@ -15,8 +15,8 @@ services:
     container_name: kipr-auth
     ports:
       - '3001:3001'
-    environment:
-      - MONGODB_URI=mongodb://mongo:27017/kipr
+    env_file:
+      - ./apps/auth/.env
     depends_on:
       - mongo
     volumes:
@@ -30,8 +30,8 @@ services:
     container_name: kipr-reservations
     ports:
       - '3000:3000'
-    environment:
-      - MONGODB_URI=mongodb://mongo:27017/kipr
+    env_file:
+      - ./apps/reservations/.env
     depends_on:
       - mongo
     volumes:
