@@ -3,7 +3,6 @@ import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy, StrategyOptionsWithoutRequest } from "passport-jwt";
 import { UsersService } from "../users/users.service";
-import type { Request } from "express";
 import { TokenPayload } from "../interfaces/token-payload.interface";
 
 @Injectable()
@@ -12,8 +11,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     constructor(configService: ConfigService, private readonly usersService: UsersService) {
         super({
-            jwtFromRequest: ExtractJwt.fromExtractors([(req: Request) => {
-                return req?.cookies?.Authentication || req?.headers?.authorization;
+            // Inbound request can either be coming from express or a rpc call
+            jwtFromRequest: ExtractJwt.fromExtractors([(req: any) => {
+                return req?.cookies?.Authentication || req?.Authentication;
             }]),
             ignoreExpiration: false,
             secretOrKey: configService.get('JWT_SECRET'),

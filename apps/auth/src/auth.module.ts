@@ -11,26 +11,27 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
-    UsersModule, 
-    LoggerModule, 
+    UsersModule,
+    LoggerModule,
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
         signOptions: { expiresIn: `${configService.get('JWT_EXPIRATION')}s` },
       }),
       inject: [ConfigService],
-    }), 
-    ConfigModule.forRoot({
-    isGlobal: true,
-    validationSchema: Joi.object({
-      MONGODB_URI: Joi.string().required(),
-      JWT_SECRET: Joi.string().required(),
-      JWT_EXPIRATION: Joi.number().required(),
-      HTTP_PORT: Joi.number().required(),
     }),
-  })
-],
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validationSchema: Joi.object({
+        MONGODB_URI: Joi.string().required(),
+        JWT_SECRET: Joi.string().required(),
+        JWT_EXPIRATION: Joi.number().required(),
+        HTTP_PORT: Joi.number().required(),
+        TCP_PORT: Joi.number().required(),
+      }),
+    })
+  ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy],
 })
-export class AuthModule {}
+export class AuthModule { }
